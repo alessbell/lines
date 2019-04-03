@@ -35,10 +35,11 @@ pub fn start() {
         .dyn_into::<Context2d>()
         .unwrap();
 
-    for a in [0, 100, 200, 300, 400].iter() {
+    const WIDTH: i32 = 110;
+    for a in 0..5 {
         log!("{}", a);
         for i in 0..10 {
-            draw_to_canvas(&context, i, *a);
+            draw_to_canvas(&context, i, a * WIDTH);
         }
     }
 }
