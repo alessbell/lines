@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use std::f64;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
@@ -38,37 +37,44 @@ pub fn start() {
 
     let context = Rc::new(context);
 
-    // raf(); calls request animation frame
-    // let mut x = 0;
-    // let mut y = 0;
-    recursively_draw_to_canvas(&context, 0, 0);
+    draw_grid_to_canvas(&context, 0, 0);
     {
-        // let context = context.clone();
         let closure = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
-            log!("{}", event.offset_x());
-            &context.clear_rect(0.0, 0.0, 1000.0, 1000.0);
-            recursively_draw_to_canvas(&context, event.offset_x(), event.offset_y());
+            &context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
+            draw_grid_to_canvas(&context, event.offset_x(), event.offset_y());
         }) as Box<dyn FnMut(_)>);
         canvas
             .add_event_listener_with_callback("mousemove", closure.as_ref().unchecked_ref())
-            .expect("hello?");
+            .expect("Error getting mousemove ref");
         closure.forget();
     }
 }
 
-fn recursively_draw_to_canvas(context: &Context2d, skew_x: i32, skew_y: i32) {
-    const WIDTH: i32 = 110;
+fn draw_grid_to_canvas(context: &Context2d, skew_x: i32, skew_y: i32) {
+    const WIDTH: i32 = 10;
+    const HEIGHT: i32 = 7;
+    const GLYPH_WIDTH: i32 = 130;
 
-    for a in 0..6 {
-        for i in 0..10 {
-            draw_to_canvas(&context, i, a * WIDTH, skew_x, skew_y);
+    for a in 0..(WIDTH * HEIGHT) {
+        for i in 1..10 {
+            let y_offset = a / WIDTH * GLYPH_WIDTH;
+            let x_offset = { (a % WIDTH) * GLYPH_WIDTH };
+            draw_to_canvas(&context, i, x_offset, y_offset, skew_x, skew_y);
         }
     }
 }
 
-fn draw_to_canvas(context: &Context2d, iter: i32, x_offset: i32, x_skew: i32, y_skew: i32) {
+fn draw_to_canvas(
+    context: &Context2d,
+    iter: i32,
+    x_offset: i32,
+    y_offset: i32,
+    x_skew: i32,
+    y_skew: i32,
+) {
     let _iter = iter as f64;
     let _x_offset = x_offset as f64;
+    let _y_offset = y_offset as f64;
     let _y_skew = y_skew as f64;
     let _x_skew = x_skew as f64;
 
@@ -78,8 +84,8 @@ fn draw_to_canvas(context: &Context2d, iter: i32, x_offset: i32, x_skew: i32, y_
     // Draw the outer circle.
     context
         .arc(
-            _x_offset + 75.0 + _iter + (_x_skew / 5.00),
-            75.0 + _iter + _y_skew,
+            _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
+            _y_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
             50.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
@@ -89,11 +95,10 @@ fn draw_to_canvas(context: &Context2d, iter: i32, x_offset: i32, x_skew: i32, y_
 
     // Draw the mouth.
     context.begin_path();
-    // context.move_to(_x_offset + 110.0, 75.0);
     context
         .arc(
-            _x_offset + 75.0 + _iter + (_x_skew / 5.00),
-            75.0 + _iter + _y_skew,
+            _x_offset + 75.0 + _iter,
+            _y_offset + 75.0 + _iter,
             35.0 + _iter,
             0.0,
             f64::consts::PI,
@@ -103,11 +108,10 @@ fn draw_to_canvas(context: &Context2d, iter: i32, x_offset: i32, x_skew: i32, y_
 
     // // Draw the left eye.
     context.begin_path();
-    // context.move_to(_x_offset + 65.0, 65.0);
     context
         .arc(
-            _x_offset + 60.0 + _iter + (_x_skew / 5.00),
-            65.0 + _iter + _y_skew,
+            _x_offset + 60.0 + _iter,
+            _y_offset + 65.0 + _iter,
             5.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
@@ -117,11 +121,10 @@ fn draw_to_canvas(context: &Context2d, iter: i32, x_offset: i32, x_skew: i32, y_
 
     // Draw the right eye.
     context.begin_path();
-    // context.move_to(_x_offset + 95.0, 65.0);
     context
         .arc(
-            _x_offset + 90.0 + _iter + (_x_skew / 5.00),
-            65.0 + _iter + _y_skew,
+            _x_offset + 90.0 + _iter,
+            _y_offset + 65.0 + _iter,
             5.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
