@@ -94,11 +94,12 @@ fn draw_to_canvas(
     context.stroke();
 
     // Draw the mouth.
+    context.set_stroke_style(&JsValue::from_str("blue"));
     context.begin_path();
     context
         .arc(
-            _x_offset + 75.0 + _iter,
-            _y_offset + 75.0 + _iter,
+            _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
+            _y_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
             35.0 + _iter,
             0.0,
             f64::consts::PI,
@@ -107,11 +108,12 @@ fn draw_to_canvas(
     context.stroke();
 
     // // Draw the left eye.
+    context.set_stroke_style(&JsValue::from_str("pink"));
     context.begin_path();
     context
         .arc(
-            _x_offset + 60.0 + _iter,
-            _y_offset + 65.0 + _iter,
+            _x_offset + 60.0 + _iter + (_x_skew / 100.0 * _iter),
+            _y_offset + 65.0 + _iter + (_y_skew / 100.0 * _iter),
             5.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
@@ -120,11 +122,12 @@ fn draw_to_canvas(
     context.stroke();
 
     // Draw the right eye.
+    context.set_stroke_style(&JsValue::from_str("yellow"));
     context.begin_path();
     context
         .arc(
-            _x_offset + 90.0 + _iter,
-            _y_offset + 65.0 + _iter,
+            _x_offset + 90.0 + _iter + (_x_skew / 100.0 * _iter),
+            _y_offset + 65.0 + _iter + (_y_skew / 100.0 * _iter),
             5.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
