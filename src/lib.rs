@@ -14,15 +14,12 @@ macro_rules! log {
     }
 }
 
-#[wasm_bindgen(start)]
+#[wasm_bindgen]
 pub fn start() {
     utils::set_panic_hook();
 
     let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = match document.get_element_by_id("canvas") {
-        Some(canvas) => canvas,
-        None => panic!("No element with id canvas"),
-    };
+    let canvas = document.get_element_by_id("canvas").unwrap();
     let canvas: web_sys::HtmlCanvasElement = canvas
         .dyn_into::<web_sys::HtmlCanvasElement>()
         .map_err(|err| log!("{:?}", err))
@@ -50,9 +47,12 @@ pub fn start() {
     }
 }
 
+#[wasm_bindgen]
+pub fn save_to_stack() {}
+
 fn draw_grid_to_canvas(context: &Context2d, skew_x: i32, skew_y: i32) {
-    const WIDTH: i32 = 10;
-    const HEIGHT: i32 = 7;
+    const WIDTH: i32 = 6;
+    const HEIGHT: i32 = 6;
     const GLYPH_WIDTH: i32 = 130;
 
     for a in 0..(WIDTH * HEIGHT) {
