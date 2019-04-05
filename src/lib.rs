@@ -145,10 +145,9 @@ fn draw_to_canvas(
     let _x_skew = x_skew as f64;
 
     context.set_stroke_style(&JsValue::from_str("#f00"));
-
     context.begin_path();
-    let offset_x = _x_offset + _iter + (_x_skew / 100.0 * _iter);
-    let offset_y = _y_offset + _iter + (_y_skew / 100.0 * _iter);
+    let offset_x = _x_offset + (_iter % 4.0) + (_x_skew / 100.0 * _iter);
+    let offset_y = _y_offset + (_iter % 4.0) + (_y_skew / 100.0 * _iter);
     // Draw the outer circle.
     context
         .arc(
@@ -176,7 +175,7 @@ fn draw_to_canvas(
     context.stroke();
 
     // // Draw the left eye.
-    context.set_stroke_style(&JsValue::from_str("pink"));
+    context.set_stroke_style(&JsValue::from_str("purple"));
     context.begin_path();
     context
         .arc(
@@ -190,7 +189,7 @@ fn draw_to_canvas(
     context.stroke();
 
     // Draw the right eye.
-    context.set_stroke_style(&JsValue::from_str("yellow"));
+    context.set_stroke_style(&JsValue::from_str("green"));
     context.begin_path();
     context
         .arc(
