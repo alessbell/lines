@@ -26,7 +26,7 @@ impl Canvas {
     }
 
     pub fn initial_draw(&self) {
-        // Canvas::draw_grid_to_canvas(&self, 0, 0);
+        draw_grid_to_canvas(&self.context, 0, 0);
     }
 
     pub fn enable_mouse_tracking(&self) {
@@ -147,11 +147,13 @@ fn draw_to_canvas(
     context.set_stroke_style(&JsValue::from_str("#f00"));
 
     context.begin_path();
+    let offset_x = _x_offset + _iter + (_x_skew / 100.0 * _iter);
+    let offset_y = _y_offset + _iter + (_y_skew / 100.0 * _iter);
     // Draw the outer circle.
     context
         .arc(
-            _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
-            _y_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
+            75.0 + offset_x,
+            75.0 + offset_y,
             50.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
@@ -164,8 +166,8 @@ fn draw_to_canvas(
     context.begin_path();
     context
         .arc(
-            _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
-            _y_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
+            75.0 + offset_x,
+            75.0 + offset_y,
             35.0 + _iter,
             0.0,
             f64::consts::PI,
@@ -178,8 +180,8 @@ fn draw_to_canvas(
     context.begin_path();
     context
         .arc(
-            _x_offset + 60.0 + _iter + (_x_skew / 100.0 * _iter),
-            _y_offset + 65.0 + _iter + (_y_skew / 100.0 * _iter),
+            60.0 + offset_x,
+            65.0 + offset_y,
             5.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
@@ -192,8 +194,8 @@ fn draw_to_canvas(
     context.begin_path();
     context
         .arc(
-            _x_offset + 90.0 + _iter + (_x_skew / 100.0 * _iter),
-            _y_offset + 65.0 + _iter + (_y_skew / 100.0 * _iter),
+            90.0 + offset_x,
+            65.0 + offset_y,
             5.0 + _iter,
             0.0,
             f64::consts::PI * 2.0,
