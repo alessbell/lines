@@ -1,3 +1,4 @@
+use std::cell::Cell;
 use std::f64;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
@@ -37,9 +38,15 @@ impl Canvas {
             .unwrap()
             .dyn_into::<Context2d>()
             .unwrap();
+        let context = Rc::new(context);
+        let tracking_enabled = Rc::new(Cell::new(false));
         {
             let context = context.clone();
+            let tracking_enabled = tracking_enabled.clone();
             let closure = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
+                if !tracking_enabled.get() {
+                    return;
+                };
                 context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
                 let x_offset = event.offset_x();
                 let y_offset = event.offset_y();
@@ -47,6 +54,18 @@ impl Canvas {
             }) as Box<dyn FnMut(_)>);
             self.canvas
                 .add_event_listener_with_callback("mousemove", closure.as_ref().unchecked_ref())
+                .expect("Error getting mousemove ref");
+            closure.forget();
+        }
+        {
+            let tracking_enabled = tracking_enabled.clone();
+
+            let closure = Closure::wrap(Box::new(move |_event: web_sys::MouseEvent| {
+                let old_tracking_enabled = tracking_enabled.get();
+                tracking_enabled.set(!old_tracking_enabled);
+            }) as Box<dyn FnMut(_)>);
+            self.canvas
+                .add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref())
                 .expect("Error getting mousemove ref");
             closure.forget();
         }
