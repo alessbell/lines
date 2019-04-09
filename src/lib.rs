@@ -18,6 +18,7 @@ macro_rules! log {
 pub struct Canvas {
     canvas: web_sys::HtmlCanvasElement,
     context: std::rc::Rc<web_sys::CanvasRenderingContext2d>,
+    range: u32,
 }
 
 #[wasm_bindgen]
@@ -26,13 +27,19 @@ impl Canvas {
         self.context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
     }
 
-    pub fn initial_draw(&self, range: u32) {
-        draw_grid_to_canvas(&self.context, 0, 0, range);
+    pub fn set_range(&mut self, range: u32) {
+        self.range = range;
+    }
+
+    pub fn initial_draw(&self) {
+        draw_grid_to_canvas(&self.context, 0, 0, self.range);
     }
 
     pub fn enable_mouse_tracking(&self) {
         let tracking_enabled = Rc::new(Cell::new(false));
         {
+            let range = self.range.clone();
+            log!("{}", range);
             let context = self.context.clone();
             let tracking_enabled = tracking_enabled.clone();
             let closure = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
@@ -42,7 +49,7 @@ impl Canvas {
                 context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
                 let x_offset = event.offset_x();
                 let y_offset = event.offset_y();
-                Canvas::draw(&context, x_offset, y_offset, 0);
+                draw_grid_to_canvas(&context, x_offset as u32, y_offset as u32, range)
             }) as Box<dyn FnMut(_)>);
             self.canvas
                 .add_event_listener_with_callback("mousemove", closure.as_ref().unchecked_ref())
@@ -63,10 +70,6 @@ impl Canvas {
         }
     }
 
-    pub fn draw(context: &Context2d, x_offset: i32, y_offset: i32, range: u32) {
-        draw_grid_to_canvas(context, x_offset as u32, y_offset as u32, range);
-    }
-
     pub fn new() -> Canvas {
         utils::set_panic_hook();
         let document = web_sys::window().unwrap().document().unwrap();
@@ -83,7 +86,11 @@ impl Canvas {
             .unwrap();
         let context = Rc::new(context);
 
-        Canvas { canvas, context }
+        Canvas {
+            canvas,
+            context,
+            range: 0,
+        }
     }
 }
 
