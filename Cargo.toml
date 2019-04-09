@@ -1,6 +1,6 @@
 [package]
 name = "happy-faces"
-version = "0.1.1"
+version = "0.1.3"
 authors = ["Alessia Bellisario <github@bellisar.io>"]
 edition = "2018"
 

@@ -26,22 +26,14 @@ impl Canvas {
         self.context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
     }
 
-    pub fn initial_draw(&self) {
-        draw_grid_to_canvas(&self.context, 0, 0);
+    pub fn initial_draw(&self, range: u32) {
+        draw_grid_to_canvas(&self.context, 0, 0, range);
     }
 
     pub fn enable_mouse_tracking(&self) {
-        let context = self
-            .canvas
-            .get_context("2d")
-            .unwrap()
-            .unwrap()
-            .dyn_into::<Context2d>()
-            .unwrap();
-        let context = Rc::new(context);
         let tracking_enabled = Rc::new(Cell::new(false));
         {
-            let context = context.clone();
+            let context = self.context.clone();
             let tracking_enabled = tracking_enabled.clone();
             let closure = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
                 if !tracking_enabled.get() {
@@ -50,7 +42,7 @@ impl Canvas {
                 context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
                 let x_offset = event.offset_x();
                 let y_offset = event.offset_y();
-                Canvas::draw(&context, x_offset, y_offset);
+                Canvas::draw(&context, x_offset, y_offset, 0);
             }) as Box<dyn FnMut(_)>);
             self.canvas
                 .add_event_listener_with_callback("mousemove", closure.as_ref().unchecked_ref())
@@ -71,8 +63,8 @@ impl Canvas {
         }
     }
 
-    pub fn draw(context: &Context2d, x_offset: i32, y_offset: i32) {
-        draw_grid_to_canvas(context, x_offset as u32, y_offset as u32);
+    pub fn draw(context: &Context2d, x_offset: i32, y_offset: i32, range: u32) {
+        draw_grid_to_canvas(context, x_offset as u32, y_offset as u32, range);
     }
 
     pub fn new() -> Canvas {
@@ -95,15 +87,15 @@ impl Canvas {
     }
 }
 
-fn draw_grid_to_canvas(context: &Context2d, skew_x: u32, skew_y: u32) {
+fn draw_grid_to_canvas(context: &Context2d, skew_x: u32, skew_y: u32, range: u32) {
     const WIDTH: u32 = 6;
     const HEIGHT: u32 = 6;
     const GLYPH_WIDTH: u32 = 130;
 
     for a in 0..(WIDTH * HEIGHT) {
         for i in 1..10 {
-            let y_offset = a / WIDTH * GLYPH_WIDTH;
-            let x_offset = (a % WIDTH) * GLYPH_WIDTH;
+            let y_offset = a / WIDTH * GLYPH_WIDTH + range;
+            let x_offset = (a % WIDTH) * GLYPH_WIDTH + range;
             draw_to_canvas(&context, i, x_offset, y_offset, skew_x, skew_y);
         }
     }
