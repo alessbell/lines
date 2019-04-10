@@ -39,7 +39,7 @@ impl Canvas {
         let tracking_enabled = Rc::new(Cell::new(false));
         {
             let range = self.range.clone();
-            log!("{}", range);
+
             let context = self.context.clone();
             let tracking_enabled = tracking_enabled.clone();
             let closure = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
@@ -103,75 +103,71 @@ fn draw_grid_to_canvas(context: &Context2d, skew_x: u32, skew_y: u32, range: u32
         for i in 1..10 {
             let y_offset = a / WIDTH * GLYPH_WIDTH + range;
             let x_offset = (a % WIDTH) * GLYPH_WIDTH + range;
-            draw_to_canvas(&context, i, x_offset, y_offset, skew_x, skew_y);
+            draw_to_canvas(
+                &context,
+                i as f64,
+                x_offset as f64,
+                y_offset as f64,
+                skew_x as f64,
+                skew_y as f64,
+            );
         }
     }
 }
 
-// fn draw_to_canvas(
-//     context: &Context2d,
-//     iter: u32,
-//     x_offset: u32,
-//     y_offset: u32,
-//     x_skew: u32,
-//     y_skew: u32,
-// ) {
-//     let _iter = iter as f64;
-//     let _x_offset = x_offset as f64;
-//     let _y_offset = y_offset as f64;
-//     let _y_skew = y_skew as f64;
-//     let _x_skew = x_skew as f64;
+struct Arc {
+    x: f64,
+    y: f64,
+    z: f64,
+    t: f64,
+    rad: f64,
+}
 
-//     context.set_stroke_style(&JsValue::from_str("#f00"));
+struct Face {
+    mouth: Arc,
+    left_eye: Arc,
+    right_eye: Arc,
+    outer_circle: Arc,
+}
 
-//     context.begin_path();
-//     context.move_to(
-//         _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
-//         _x_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
-//     );
-//     context.line_to(
-//         _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
-//         _y_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
-//     );
-//     context.stroke();
+struct Faces {
+    arcs: Vec<Face>,
+}
 
-//     context.set_stroke_style(&JsValue::from_str("blue"));
-//     context.begin_path();
-//     context.move_to(
-//         _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
-//         _x_offset + 75.0 + _iter + (_y_skew / 100.0 * _iter),
-//     );
-//     context.line_to(
-//         _x_offset + 75.0 + _iter + (_x_skew / 100.0 * _iter),
-//         _x_offset + 200.0 + _iter + (_y_skew / 100.0 * _iter),
-//     );
-//     context.stroke();
-// }
+
+fn calculate_faces(
+    context: &Context2d,
+    iter: f64,
+    x_offset: f64,
+    y_offset: f64,
+    x_skew: f64,
+    y_skew: f64,
+) {
+    let offset_x = x_offset + (iter % 4.0) + (x_skew / 100.0 * iter);
+    let offset_y = y_offset + (iter % 4.0) + (y_skew / 100.0 * iter);
+
+    let mouth = { x:  75.0 + offset_x, y: 75.0 + offset_y, z: 35.0 + iter, 0.0, f64::consts::Pi };
+}
 
 fn draw_to_canvas(
     context: &Context2d,
-    iter: u32,
-    x_offset: u32,
-    y_offset: u32,
-    x_skew: u32,
-    y_skew: u32,
+    iter: f64,
+    x_offset: f64,
+    y_offset: f64,
+    x_skew: f64,
+    y_skew: f64,
 ) {
-    let _iter = iter as f64;
-    let _x_offset = x_offset as f64;
-    let _y_offset = y_offset as f64;
-    let _y_skew = y_skew as f64;
-    let _x_skew = x_skew as f64;
-
     context.set_stroke_style(&JsValue::from_str("#f00"));
     context.begin_path();
-    let offset_x = _x_offset + (_iter % 4.0) + (_x_skew / 100.0 * _iter);
-    let offset_y = _y_offset + (_iter % 4.0) + (_y_skew / 100.0 * _iter);
+    let offset_x = x_offset + (iter % 4.0) + (x_skew / 100.0 * iter);
+    let offset_y = y_offset + (iter % 4.0) + (y_skew / 100.0 * iter);
+
     // Draw the outer circle.
     context
         .arc(
             75.0 + offset_x,
             75.0 + offset_y,
-            50.0 + _iter,
+            50.0 + iter,
             0.0,
             f64::consts::PI * 2.0,
         )
@@ -185,7 +181,7 @@ fn draw_to_canvas(
         .arc(
             75.0 + offset_x,
             75.0 + offset_y,
-            35.0 + _iter,
+            35.0 + iter,
             0.0,
             f64::consts::PI,
         )
@@ -199,7 +195,7 @@ fn draw_to_canvas(
         .arc(
             60.0 + offset_x,
             65.0 + offset_y,
-            5.0 + _iter,
+            5.0 + iter,
             0.0,
             f64::consts::PI * 2.0,
         )
@@ -213,7 +209,7 @@ fn draw_to_canvas(
         .arc(
             90.0 + offset_x,
             65.0 + offset_y,
-            5.0 + _iter,
+            5.0 + iter,
             0.0,
             f64::consts::PI * 2.0,
         )
