@@ -33,6 +33,8 @@ impl Canvas {
 
     pub fn initial_draw(&self) {
         // draw_grid_to_canvas(&self.context, 0, 0, self.range);
+        let faces = calculate_faces(&self.context, 0, 0, self.range);
+        draw_faces(&self.context, faces);
     }
 
     pub fn enable_mouse_tracking(&self) {
@@ -49,7 +51,8 @@ impl Canvas {
                 context.clear_rect(0.0, 0.0, 2000.0, 2000.0);
                 let x_offset = event.offset_x();
                 let y_offset = event.offset_y();
-                let faces = calculate_faces(&context, x_offset as u32, y_offset as u32, range);
+                // let faces = calculate_faces(&context, x_offset as u32, y_offset as u32, range);
+                // draw_faces(faces);
             }) as Box<dyn FnMut(_)>);
             self.canvas
                 .add_event_listener_with_callback("mousemove", closure.as_ref().unchecked_ref())
@@ -94,6 +97,26 @@ impl Canvas {
     }
 }
 
+fn draw_faces(context: &Context2d, faces: Faces) {
+    for face in faces.arcs.iter() {
+        log!("{:?}", face);
+
+        context.set_stroke_style(&JsValue::from_str("blue"));
+        context.begin_path();
+        context
+            .arc(
+                face.mouth
+            )
+            .unwrap();
+        context.stroke();
+    }
+}
+
+// pseudo code
+// initial draw draws faces
+// moving range slider might draw faces in diff locations
+// when mouse tracking is turned on, mouse coords
+
 fn calculate_faces(context: &Context2d, skew_x: u32, skew_y: u32, range: u32) -> Faces {
     const WIDTH: u32 = 6;
     const HEIGHT: u32 = 6;
@@ -118,8 +141,10 @@ fn calculate_faces(context: &Context2d, skew_x: u32, skew_y: u32, range: u32) ->
     Faces { arcs }
 }
 
+#[derive(Debug)]
 struct Arc(f64, f64, f64, f64, f64);
 
+#[derive(Debug)]
 struct Face {
     mouth: Arc,
     left_eye: Arc,
@@ -127,6 +152,7 @@ struct Face {
     outer_circle: Arc,
 }
 
+#[derive(Debug)]
 struct Faces {
     arcs: Vec<Face>,
 }
